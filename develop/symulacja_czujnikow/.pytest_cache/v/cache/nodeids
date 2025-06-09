@@ -1,0 +1,7 @@
+[
+  "test_sensors.py::test_humidity_sensor_reading",
+  "test_sensors.py::test_pressure_sensor_toggle",
+  "test_sensors.py::test_sensor_reading_when_inactive",
+  "test_sensors.py::test_sensor_reading_within_bounds",
+  "test_sensors.py::test_temperature_sensor_initialization"
+]

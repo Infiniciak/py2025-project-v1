@@ -3,20 +3,19 @@ from typing import List
 from datetime import datetime
 import threading
 import time
-import json
-from sensors.temperature_sensor import TemperatureSensor
-from sensors.humidity_sensor import HumiditySensor
-from sensors.pressure_sensor import PressureSensor
-from sensors.light_sensor import LightSensor
+from symulacja_czujnikow.temperature_sensor import TemperatureSensor
+from symulacja_czujnikow.humidity_sensor import HumiditySensor
+from symulacja_czujnikow.pressure_sensor import PressureSensor
+from symulacja_czujnikow.light_sensor import LightSensor
 from logger.logger import Logger
-from network.client import NetworkClient
+from komunikacja_sieciowa.siec.client import NetworkClient
 from gui.main_window import SensorGUI
 
 class MonitoringSystem:
     def __init__(self):
         self.sensors = self.initialize_sensors()
-        self.logger = Logger("config/logger_config.json")
-        self.network_client = NetworkClient("config/network_config.yaml")
+        self.logger = Logger("logger/config.json")
+        self.network_client = NetworkClient(host="127.0.0.1", port=5000)
         self.running = False
         self.sensor_data = {s.sensor_id: [] for s in self.sensors}
         
@@ -63,8 +62,7 @@ class MonitoringSystem:
             for sensor in self.sensors:
                 try:
                     value = sensor.read_value()
-                    
-                    # Logowanie danych
+
                     self.logger.log_reading(
                         sensor.sensor_id,
                         current_time,
@@ -72,7 +70,7 @@ class MonitoringSystem:
                         sensor.unit
                     )
                     
-                    # Wysyłanie przez sieć
+
                     data = {
                         "sensor_id": sensor.sensor_id,
                         "value": value,
@@ -90,8 +88,7 @@ class MonitoringSystem:
                     
                 except Exception as e:
                     print(f"Błąd czujnika {sensor.sensor_id}: {str(e)}")
-            
-            # Aktualizacja GUI
+
             self.root.after(0, self.update_gui)
             time.sleep(1)
     

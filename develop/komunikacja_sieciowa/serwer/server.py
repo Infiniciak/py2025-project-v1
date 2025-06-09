@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Dict, Any, Optional
 from threading import Thread
-
+logging.basicConfig(level=logging.INFO)
 
 class NetworkServer:
     def __init__(self, port: int, logger: Optional[logging.Logger] = None):
@@ -46,31 +46,30 @@ class NetworkServer:
         self.logger.info("Server stopped")
 
     def _handle_client(self, client_socket: socket.socket) -> None:
-        try:
-            with client_socket:
-                buffer = b''
-                while True:
+        with client_socket:
+            self.logger.info("Started handling client")
+            buffer = b''
+            while True:
+                try:
                     data = client_socket.recv(1024)
                     if not data:
+                        self.logger.info("Client disconnected")
                         break
                     buffer += data
-                    if b'\n' in buffer:
+                    while b'\n' in buffer:
                         message, _, buffer = buffer.partition(b'\n')
-                        break
-
-                if not message:
-                    self.logger.warning("Empty message received")
-                    return
-
-                try:
-                    data = json.loads(message.decode('utf-8'))
-                    self._process_data(data)
-                    client_socket.sendall(b"ACK\n")
-                except json.JSONDecodeError as e:
-                    self.logger.error(f"Error decoding JSON: {str(e)}")
-                    client_socket.sendall(b"ERROR: Invalid JSON\n")
-        except Exception as e:
-            self.logger.error(f"Client handling error: {str(e)}")
+                        try:
+                            decoded = json.loads(message.decode('utf-8'))
+                            self._process_data(decoded)
+                            client_socket.sendall(b"ACK\n")
+                        except json.JSONDecodeError:
+                            client_socket.sendall(b"ERROR: Invalid JSON\n")
+                except (ConnectionResetError, BrokenPipeError) as e:
+                    self.logger.warning(f"Connection error: {e}")
+                    break
+                except Exception as e:
+                    self.logger.error(f"Error handling client: {e}")
+                    break
 
     def _process_data(self, data: Dict[str, Any]) -> None:
         try:
@@ -80,3 +79,9 @@ class NetworkServer:
 
         except Exception as e:
             self.logger.error(f"Data processing error: {str(e)}")
+
+if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    server = NetworkServer(port=5000)
+    server.start()

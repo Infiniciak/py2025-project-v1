@@ -35,7 +35,7 @@ class NetworkClient:
                 self._connected = True
                 self.logger.info(f"Connected to {self.host}:{self.port}")
                 return True
-            except (socket.timeout, ConnectionRefusedError) as e:
+            except (socket.timeout, ConnectionRefusedError, OSError) as e:
                 self.logger.warning(f"Connection attempt {attempt} failed: {str(e)}")
                 if attempt < self.retries:
                     time.sleep(1)

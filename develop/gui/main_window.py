@@ -59,7 +59,7 @@ class SensorGUI:
             self.tree.delete(item)
             
         for sensor in self.sensors:
-            status = "Aktywny" if sensor.active else "Zatrzymany"
+            status = "Aktywny" if sensor.is_active else "Zatrzymany"
             self.tree.insert('', 'end', values=(
                 sensor.sensor_id,
                 sensor.name,

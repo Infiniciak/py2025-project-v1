@@ -1,0 +1,11 @@
+[
+  "test_network.py::TestNetworkClient::test_close",
+  "test_network.py::TestNetworkClient::test_connection_failure",
+  "test_network.py::TestNetworkClient::test_connection_success",
+  "test_network.py::TestNetworkClient::test_send_no_ack",
+  "test_network.py::TestNetworkClient::test_send_successful_ack",
+  "test_network.py::TestNetworkClient::test_serialization_error",
+  "test_server.py::TestNetworkServer::test_receive_empty_message",
+  "test_server.py::TestNetworkServer::test_receive_invalid_json",
+  "test_server.py::TestNetworkServer::test_receive_valid_json"
+]

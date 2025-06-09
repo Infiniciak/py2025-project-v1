@@ -3,10 +3,9 @@ import socket
 import threading
 import json
 import time
-import sys
-import os
 
-from server.server import NetworkServer
+
+from komunikacja_sieciowa.serwer.server import NetworkServer
 
 class TestNetworkServer(unittest.TestCase):
 
@@ -45,7 +44,8 @@ class TestNetworkServer(unittest.TestCase):
         with socket.create_connection(('127.0.0.1', self.port), timeout=5) as sock:
             sock.sendall(b'\n')
             response = sock.recv(1024).decode('utf-8').strip()
-            self.assertIn(response, ['ACK', 'ERROR'])
+            self.assertTrue(response.startswith('ACK') or response.startswith('ERROR'))
+
 
 if __name__ == '__main__':
     unittest.main()

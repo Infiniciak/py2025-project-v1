@@ -3,7 +3,7 @@ import numpy as np
 
 from datetime import datetime
 
-from base_sensor import BaseSensor
+from symulacja_czujnikow.base_sensor import BaseSensor
 class TemperatureSensor(BaseSensor):
     def __init__(self, sensor_id: str = "temp_1",
                  name: str = "Temperature Sensor",

@@ -2,7 +2,7 @@ import numpy as np
 
 from datetime import datetime
 
-from base_sensor import BaseSensor
+from symulacja_czujnikow.base_sensor import BaseSensor
 class LightSensor(BaseSensor):
     def __init__(self, sensor_id: str = "light_1",
                  name: str = "Light Sensor",

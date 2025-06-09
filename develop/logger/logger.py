@@ -68,13 +68,11 @@ class Logger:
             self._check_rotation()
 
     def read_logs(self, start: datetime, end: datetime, sensor_id: Optional[str] = None) -> Iterator[Dict]:
-        # Lista plików logów (obecne + archiwum ZIP)
         files = glob.glob(os.path.join(self.log_dir, '*.csv'))
         zip_files = glob.glob(os.path.join(self.archive_dir, '*.zip'))
         all_files = files + zip_files
 
         for file_path in all_files:
-            # Obsługa plików ZIP
             if file_path.endswith('.zip'):
                 with zipfile.ZipFile(file_path, 'r') as zipf:
                     for name in zipf.namelist():
@@ -88,7 +86,6 @@ class Logger:
                     for row in reader:
                         yield self._parse_log_row(row, start, end, sensor_id)
 
-    # --- Metody prywatne ---
     def _parse_log_row(self, row: Dict, start: datetime, end: datetime, sensor_id: Optional[str]):
         try:
             timestamp = datetime.fromisoformat(row['timestamp'])
@@ -112,7 +109,6 @@ class Logger:
         self._last_rotation_time = datetime.now()
         self._file = open(filepath, 'a', newline='', encoding='utf-8')
         self._csv_writer = csv.writer(self._file)
-        # Zapisz nagłówek jeśli plik jest nowy
         if self._file.tell() == 0:
             self._csv_writer.writerow(['timestamp', 'sensor_id', 'value', 'unit'])
 
@@ -131,44 +127,34 @@ class Logger:
 
     def _check_rotation(self):
         now = datetime.now()
-        # Rotacja co określony czas
         if (now - self._last_rotation_time).total_seconds() >= self.rotate_every_hours * 3600:
             self._rotate_log()
 
-        # Rotacja na podstawie rozmiaru pliku
         if self._file and os.path.getsize(self._current_filename) >= self.max_size_mb * 1024 * 1024:
             self._rotate_log()
 
-        # Rotacja na podstawie liczby wpisów
         if self.rotate_after_lines is not None:
-            # Jeśli w pliku jest więcej niż rotate_after_lines
             if os.path.exists(self._current_filename):
                 with open(self._current_filename, 'r', encoding='utf-8') as f:
-                    line_count = sum(1 for line in f) - 1  # minus nagłówek
+                    line_count = sum(1 for line in f) - 1
                 if line_count >= self.rotate_after_lines:
                     self._rotate_log()
 
     def _rotate_log(self):
-        # Zamknij bieżący plik
         if self._file:
             self._flush_buffer()
             self._file.close()
             self._file = None
-        # Przenieś plik do archiwum
         timestamp_str = self._file_start_time.strftime('%Y%m%d_%H%M%S')
         archive_name = f"{os.path.basename(self._current_filename).replace('.csv', '')}_{timestamp_str}.zip"
         archive_path = os.path.join(self.archive_dir, archive_name)
 
-        # ZIP archiwizacja
         with zipfile.ZipFile(archive_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
             zipf.write(self._current_filename, arcname=os.path.basename(self._current_filename))
-        # Usunięcie oryginalnego pliku
         os.remove(self._current_filename)
 
-        # Usuwanie starych archiwów
         self._clean_old_archives()
 
-        # Otwarcie nowego pliku
         self._open_new_log_file()
         self._last_rotation_time = datetime.now()
 

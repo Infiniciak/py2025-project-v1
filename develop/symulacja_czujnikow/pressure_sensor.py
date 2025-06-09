@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from base_sensor import BaseSensor
+from symulacja_czujnikow.base_sensor import BaseSensor
 class PressureSensor(BaseSensor):
     def __init__(self, sensor_id: str = "press_1",
                  name: str = "Pressure Sensor",

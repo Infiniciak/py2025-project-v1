@@ -1,10 +1,9 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import socket
-import json
-import time
 
-from network.client import NetworkClient
+
+from komunikacja_sieciowa.siec.client import NetworkClient
 
 class TestNetworkClient(unittest.TestCase):
 
@@ -32,8 +31,7 @@ class TestNetworkClient(unittest.TestCase):
     @patch('socket.socket')
     def test_send_successful_ack(self, mock_socket_class):
         mock_socket = MagicMock()
-        mock_socket.recv.return_value = b'ACK
-'
+        mock_socket.recv.return_value = b'ACK\n'
         mock_socket.sendall = MagicMock()
         mock_socket_class.return_value = mock_socket
 
@@ -51,8 +49,7 @@ class TestNetworkClient(unittest.TestCase):
     @patch('socket.socket')
     def test_send_no_ack(self, mock_socket_class):
         mock_socket = MagicMock()
-        mock_socket.recv.return_value = b'NACK
-'
+        mock_socket.recv.return_value = b'NACK\n'
         mock_socket.sendall = MagicMock()
         mock_socket_class.return_value = mock_socket
 
